@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--
+        auto-config="true"  自动生成登陆页面;如果有指定登陆页面，认证失败还是跳转到自己指定的登陆页面。
+        use-expressions="false" 不使用SpEL表达式
+        <security:intercept-url pattern="/**" access="ROLE_USER">
+            pattern="/**" 拦截所有资源
+            access="ROLE_USER" 表示访问所有资源必须有的角色
+                               注意：必须以ROLE_ 开头,且与下面配置的authorities中的角色要一致才可以登陆
+        <security:user
+            name="jack"         写死的用户名
+            password="{noop}888" 对应的密码； {noop}密码不加密，否则报错没有制定PasswordEncoding
+            authorities="ROLE_USER"> 当前用户具有的角色（权限）
+
+         login-page="/login.html"              登陆页面
+         username-parameter="userName"         登陆页面提交表单参数:用户名
+         password-parameter="password"         登陆页面提交表单参数:密码
+         login-processing-url="/login"         登陆提交地址
+         authentication-failure-url="/fail.html" 登陆失败跳转地址
+         authentication-success-forward-url="/success.html" 登陆成功跳转地址
+         default-target-url="/success.html"      登陆成功默认跳转地址（如果没有指定authentication-success-forward-url）
+                                                  就以默认跳转地址为准。
+         <security:logout
+                  invalidate-session="true"         退出销毁session
+                  logout-url="/logout"              退出地址
+                  logout-success-url="/login.html"  退出成功后跳转的页面
+    -->
+
+    <!--放行一些资源-->
+    <security:http pattern="/login.html" security="none"></security:http>
+    <security:http pattern="/fail.html" security="none"></security:http>
+
+    <security:http auto-config="true" use-expressions="false">
+        <security:intercept-url pattern="/**" access="ROLE_USER"></security:intercept-url>
+
+        <security:form-login
+                login-page="/login.html"
+                username-parameter="userName"
+                password-parameter="password"
+                authentication-success-forward-url="/success.html"
+                login-processing-url="/login"
+                authentication-failure-url="/fail.html"
+                default-target-url="/success.html"></security:form-login>
+
+        <security:logout invalidate-session="true"
+                  logout-url="/logout"
+                  logout-success-url="/login.html"></security:logout>
+        <!--关闭跨域请求校验-->
+        <security:csrf disabled="true"></security:csrf>
+    </security:http>
+
+    <!--配置登陆信息（登陆信息写死）-->
+    <security:authentication-manager>
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="jack" password="{noop}888" authorities="ROLE_USER"></security:user>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+</beans>
